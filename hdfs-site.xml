@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+ 
+<!-- Put site-specific property overrides in this file. -->
+<configuration>
+<property>
+{% if node == "NameNode" %}
+<name>dfs.name.dir</name>
+<value>/nn</value>
+{% endif %}
+{% if node == "DataNode" %}
+<name>dfs.data.dir</name>
+<value>/dn</value>
+{% endif %}
+</property>
+</configuration>
+

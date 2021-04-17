@@ -1,0 +1,113 @@
+- hosts: localhost
+  tasks:
+          
+  - name: Hadoop hdfs SG 
+    ec2_group:
+      name: hadoop-hdfs
+      description: sg with rule descriptions
+      vpc_id: vpc-939d80fb
+      region: ap-south-1
+      rules:
+        - proto: tcp
+          ports:
+          - 80
+          cidr_ip: 0.0.0.0/0
+          rule_desc: allow all on port 80
+        - proto: tcp
+          ports:
+          - 22
+          cidr_ip: 0.0.0.0/0
+          rule_desc: allow all on port 22
+        - proto: tcp
+          ports:
+          - 50070
+          cidr_ip: 0.0.0.0/0
+          rule_desc: allow all on port 50070
+        - proto: tcp
+          ports:
+          - 9001
+          cidr_ip: 0.0.0.0/0
+          rule_desc: allow all on port 9001
+
+  - name: Hadoop mapred SG
+    ec2_group:
+      name: hadoop-mapred
+      description: sg with rule descriptions
+      vpc_id: vpc-939d80fb
+      region: ap-south-1
+      rules:
+        - proto: tcp
+          ports:
+          - 80
+          cidr_ip: 0.0.0.0/0
+          rule_desc: allow all on port 80
+        - proto: tcp
+          ports:
+          - 22
+          cidr_ip: 0.0.0.0/0
+          rule_desc: allow all on port 22
+        - proto: tcp
+          ports:
+          - 50030
+          cidr_ip: 0.0.0.0/0
+          rule_desc: allow all on port 50030
+        - proto: tcp
+          ports:
+          - 9002
+          cidr_ip: 0.0.0.0/0
+          rule_desc: allow all on port 9002
+  - name: Launch NameNode
+    ec2:
+      region: ap-south-1
+      key_name: ELB
+      instance_type: t2.micro
+      image: ami-0bcf5425cdc1d8a85
+      wait: yes
+      group: hadoop-hdfs
+      count: 1
+      vpc_subnet_id: subnet-73e0da1b
+      instance_tags:
+         node: NameNode
+      assign_public_ip: yes
+
+  - name: Launch DataNode
+    ec2:
+      region: ap-south-1
+      key_name: ELB
+      instance_type: t2.micro
+      image: ami-0bcf5425cdc1d8a85
+      wait: yes
+      group: hadoop-hdfs
+      count: 3
+      vpc_subnet_id: subnet-73e0da1b
+      instance_tags:
+         node: DataNode
+      assign_public_ip: yes
+
+  - name: Launch JobTracker
+    ec2:
+      region: ap-south-1
+      key_name: ELB
+      instance_type: t2.micro
+      image: ami-0bcf5425cdc1d8a85
+      wait: yes
+      group: hadoop-mapred
+      count: 1
+      vpc_subnet_id: subnet-73e0da1b
+      instance_tags:
+         node: JobTracker
+      assign_public_ip: yes
+
+  - name: Launch Task Tracker 
+    ec2:
+      region: ap-south-1
+      key_name: ELB
+      instance_type: t2.micro
+      image: ami-0bcf5425cdc1d8a85
+      wait: yes
+      group: hadoop-mapred
+      count: 3
+      vpc_subnet_id: subnet-73e0da1b
+      instance_tags:
+         node: TaskTracker
+      assign_public_ip: yes

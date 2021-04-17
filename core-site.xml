@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!-- Put site-specific property overrides in this file. -->
+<configuration>
+<property>
+{% if node == "NameNode" %}
+<name>fs.default.name</name>
+<value>hdfs://0.0.0.0:9001</value>
+{% endif %}
+{% if node == "DataNode" %}
+<name>fs.default.name</name>
+<value>hdfs://{{ groups['tag_node_NameNode'][0] }}:9001</value>
+{% endif %}
+</property>
+</configuration>
+

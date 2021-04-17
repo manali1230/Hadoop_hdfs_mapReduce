@@ -1,0 +1,80 @@
+- hosts: tag_node_JobTracker,tag_node_TaskTracker
+
+  tasks:
+
+  - name: Search JDK
+    command: rpm -q /root/Hadoop/jdk-8u171-linux-x64.rpm
+    register: jdk
+    ignore_errors: yes
+
+  - debug:
+      var: jdk.stdout
+
+  - name: Search Hadoop
+    command: rpm -q /root/Hadoop/hadoop-1.2.1-1.x86_64.rpm
+    register: hadoop
+    ignore_errors: yes
+
+  - debug:
+      var: hadoop.stdout
+
+  - name: Copy JDK
+    copy:
+      src: jdk-8u171-linux-x64.rpm
+      dest: /root/Hadoop/
+    when: jdk.rc != 0
+
+  - name: Copy Hadoop
+    copy:
+      src: hadoop-1.2.1-1.x86_64.rpm
+      dest: /root/Hadoop/
+    when: hadoop.rc != 0
+
+  - name: install JDK
+    command: rpm -i /root/Hadoop/jdk-8u171-linux-x64.rpm
+    register: jdktool
+    ignore_errors: yes
+    when: jdk.stdout != "jdk1.8-1.8.0_171-fcs.x86_64"
+
+  - debug:
+      var: jdktool
+
+  - name: install Hadoop
+    command: rpm -i /root/Hadoop/hadoop-1.2.1-1.x86_64.rpm --force
+    register: hadooptool
+    ignore_errors: yes
+    when: hadoop.stdout != "hadoop-1.2.1-1.x86_64"
+
+  - debug:
+      var: hadooptool
+
+#configure Job Tracker
+- hosts: tag_node_JobTracker
+  vars:
+    node: "JobTracker"
+
+  tasks:
+ 
+  - name: Copy MAPRED-SITE.xml file
+    template:
+      src: mapred-site.xml
+      dest: /etc/hadoop/
+
+  - name: Start JobTracker
+    command: hadoop-daemon.sh start jobtracker
+
+
+#configure Task Tracker
+- hosts: tag_node_TaskTracker
+  vars:
+    node: "TaskTracker"
+
+  tasks:
+  
+  - name: Copy MAPRED-SITE.xml file
+    template:
+      src: mapred-site.xml
+      dest: /etc/hadoop/
+
+  - name: Start TaskTracker
+    command: hadoop-daemon.sh start tasktracker
